@@ -31,7 +31,7 @@ In short, Kendryte K210 is **RISC-V Dual Core 64bit MCU with FPU**.
 - Compiler : RISC-V 64bit GNU toolchain with '--with-abi=lp64f --with-arch=rv64imafc'
 - SDK : [kendryte-standalone-sdk](https://github.com/kendryte/kendryte-standalone-sdk)
 - Programming : [kflash.py](https://github.com/kendryte/kflash.py)
-- Debugging : Kendryte riscv OpenOCD / gdb
+- Debugging : Kendryte OpenOCD / gdb
 
 # Compilers
 
