@@ -153,7 +153,8 @@ These configurations use `kendryte-` prefix to avoid conflict with original Open
 | IO 2   | TMS  |
 | IO 3   | TDO  |
 
-**NOTE :** you should avoid to re-map these IO pins if you want to debug by jtag, otherwise it require a reset to enter JTAG debugging mode, and even JTAG debugging activated, after these IO pins remapped in your codes, it is impossible to continue debugging.
+**NOTE 1 :** you should avoid to re-map these IO pins if you want to debug by jtag, otherwise it require a reset to enter JTAG debugging mode, and even JTAG debugging activated, after these IO pins remapped in your codes, it is impossible to continue debugging.
+**NOTE 2 :** Yahboom K210 Developer Kit did not export RST pin (it's stupid), but some Sipeed K210 devboards exported. with RST pin, it is easy to enter JTAG mode even IO 0 - IO 3 were remapped, but remember that, if your codes use these pins, it is still impossible to continue the jtag debugging.
 
 ## Launch Kendryte OpenOCD
 Here I use sipeed ft2232d jtag debugger, wire it up and using the `target-k210.cfg` config file in this repo, launch kendryte openocd as:
