@@ -25,6 +25,8 @@ In short, Kendryte K210 is **RISC-V Dual Core 64bit MCU with FPU**.
   + Sipeed also produce a series K210 devboards.
 - Debugger
 
+<img src="misc/yahboom-k210.png />
+
 # Toolchain overview
 - Compiler : RISC-V 64bit GNU toolchain with '--with-abi=lp64f --with-arch=rv64imafc'
 - SDK : [kendryte-standalone-sdk](https://github.com/kendryte/kendryte-standalone-sdk)
