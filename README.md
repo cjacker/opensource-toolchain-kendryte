@@ -23,7 +23,7 @@ In short, Kendryte K210 is **RISC-V Dual Core 64bit MCU with FPU**.
 - A Kendryte K210 devboard
   + I use [Yahboom K210-Developer-Kit](https://www.yahboom.com/study/K210-Developer-Kit) in this tutorial.
   + Sipeed also produce a series K210 devboards.
-- Debugger
+- Any JTAG Debugger
 
 <img src="misc/yahboom-k210.png" />
 
@@ -120,5 +120,36 @@ The `-p /dev/ttyUSB0` can be ommited. `-b 2000000` to set a high baudrate will i
 After programming finished, you will find the 2 LEDs on board blinked.
 
 # Debugging
+
+Kendryte K210 support JTAG debugging, But requires a forked RISC-V OpenOCD.
+
+> Because the debug protocol used by K210 is RISC-V External Debug Support Version 0.11, and the official openocd does not
+> support multi-core debugging for this version. So Kendryte made a lot of changes, so that Kendryte OpenOCD can be used for
+> debugging kendryte chips as much as possible.
+
+Build the forked OpenOCD:
+
+```
+git clone https://github.com/kendryte/openocd-kendryte.git
+cd openocd-kendryte
+./bootstrap
+./configure --prefix=/usr \
+  --datadir=/usr/share/kendryte-openocd \
+  --disable-werror \
+  --program-prefix=kendryte-
+make
+sudo make install
+```
+These configurations use `kendryte-` prefix to avoid conflict with original OpenOCD installed in your system.
+
+The JTAG pinout of K210:
+
+| IO Pin | JTAG |
+|--------|------|
+| IO 0   | TCK  |
+| IO 1   | TDI  |
+| IO 2   | TMS  |
+| IO 3   | TDO  |
+
 
 
