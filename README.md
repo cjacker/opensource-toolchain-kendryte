@@ -156,6 +156,14 @@ These configurations use `kendryte-` prefix to avoid conflict with original Open
 **NOTE 1 :** you should avoid to re-map these IO pins if you want to debug by jtag, otherwise it require a reset to enter JTAG debugging mode, and even JTAG debugging activated, after these IO pins remapped in your codes, it is impossible to continue debugging.
 **NOTE 2 :** Yahboom K210 Developer Kit did not export RST pin (it's stupid), but some Sipeed K210 devboards exported. with RST pin, it is easy to enter JTAG mode even IO 0 - IO 3 were remapped, but remember that, if your codes use these pins, it is still impossible to continue the jtag debugging.
 
+I wrote a script only works with Yahboom K210 Developer Kit, to demo how to activate JTAG debugging mode even IO 0-3 remapped
+
+- Use 'main-remap-io0.c', it will blink the LED connect to IO 0, build and flash it to Yahboom K210 devboard.
+- Since the IO 0 remapped, when codes running, you coule never be able to activate JTAG debugging mode, openocd always fail.
+- using the typec port to supply power and it will also create a serial device (we used for UART ISP programming above). DTR of this serial device can be used to reset the devboard. mainwhile keep JTAG adapter plugged in. 
+- run 'python yahboom-k210-always-enter-jtag.py /dev/ttyUSBx', it will reset the board, wait a little while and activate JTAG debugging mode.
+- But if continue run the demo codes, the OpenOCD will report an ERROR since IO 0 was re-mapped eventually. 
+
 ## Launch Kendryte OpenOCD
 Here I use sipeed ft2232d jtag debugger, wire it up and using the `target-k210.cfg` config file in this repo, launch kendryte openocd as:
 ```
