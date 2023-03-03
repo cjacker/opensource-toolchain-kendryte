@@ -71,6 +71,7 @@ Please refer to https://github.com/kendryte/kendryte-gnu-toolchain to build the 
 
 
 # SDK
+
 The upstream K210 SDK is https://github.com/kendryte/kendryte-standalone-sdk, just clone it and put it somewhere, for example HOME dir.
 
 ```
@@ -79,7 +80,7 @@ git clone https://github.com/kendryte/kendryte-standalone-sdk.git
 
 The sdk is organized by cmake and very easy to use, to start a project, it just need create a dir under 'src' and put your codes there.
 
-Use 'main.c' in this repo as example, it will blink two LEDs on yahboom K210 devboard (you may need to change it to match your devboard):
+Use 'main.c' in this repo as example, it will blink one LED connect to IO 17 on yahboom K210 devboard (you may need to change it to match your devboard):
 
 ```
 cd kendryte-standalone-sdk
@@ -127,7 +128,7 @@ Kendryte K210 support JTAG debugging, But requires a forked RISC-V OpenOCD.
 > support multi-core debugging for this version. So Kendryte made a lot of changes, so that Kendryte OpenOCD can be used for
 > debugging kendryte chips as much as possible.
 
-Build the forked OpenOCD:
+## Build kendryte OpenOCD:
 
 ```
 git clone https://github.com/kendryte/openocd-kendryte.git
@@ -140,9 +141,10 @@ cd openocd-kendryte
 make
 sudo make install
 ```
-These configurations use `kendryte-` prefix to avoid conflict with original OpenOCD installed in your system.
+These configurations use `kendryte-` prefix to avoid conflict with original OpenOCD installed in your system, the OpenOCD command for kendryte is `kendryte-openocd`.
 
-The JTAG pinout of K210:
+
+## The JTAG pinout of K210
 
 | IO Pin | JTAG |
 |--------|------|
@@ -151,5 +153,61 @@ The JTAG pinout of K210:
 | IO 2   | TMS  |
 | IO 3   | TDO  |
 
+**NOTE :** you should avoid to re-map these IO pins if you want to debug by jtag, otherwise it require a reset to enter JTAG debugging mode, and even JTAG debugging activated, after these IO pins remapped in your codes, it is impossible to continue debugging.
 
+## Launch Kendryte OpenOCD
+Here I use sipeed ft2232d jtag debugger, wire it up and using the `target-k210.cfg` config file in this repo, launch kendryte openocd as:
+```
+kendryte-openocd -f interface-ft2232d.cfg -f target-k210.cfg
+```
+If you use other JTAG adapter, such as JLink, etc, you should find corresponding openocd interface config file for it.
 
+The output looks like:
+```
+ _  __              _            _
+| |/ /___ _ __   __| |_ __ _   _| |_ ___
+| ' // _ \ '_ \ / _` | '__| | | | __/ _ \
+| . \  __/ | | | (_| | |  | |_| | ||  __/
+|_|\_\___|_| |_|\__,_|_|   \__, |\__\___|
+                           |___/
+Kendryte Open On-Chip Debugger For RISC-V v0.2.3 (2019-02-21)
+Licensed under GNU GPL v2
+adapter speed: 10000 kHz
+Info : ftdi: if you experience problems at higher adapter clocks, try the command "ftdi_tdo_sample_edge falling"
+Info : clock speed 10000 kHz
+Info : JTAG tap: riscv.cpu tap/device found: 0x04e4796b (mfg: 0x4b5 (<unknown>), part: 0x4e47, ver: 0x0)
+Core [0] halted at 0x800018b8 due to debug interrupt
+Info : Examined RISCV core; found 2 harts
+Info : Listening on port 3333 for gdb connections
+Core [1] halted at 0x80000c24 due to debug interrupt
+Core [0] halted at 0x800018b4 due to debug interrupt
+Info : Listening on port 6666 for tcl connections
+Info : Listening on port 4444 for telnet connections
+```
+
+## Debugging with gdb
+As mentioned above, when I install the toolchain, the toolchain path is not added to PATH env, here should use abosolute path to invoke `riscv64-unknown-elf-gdb`:
+
+```
+cd kendryte-standalone-sdk/build
+/opt/kendryte-toolchain/riscv64-unknown-elf-gdb ./blink
+```
+After the '(gdb)' prompt show:
+```
+gdb) target remote :3333
+Remote debugging using :3333
+warning: Target-supplied registers are not supported by the current architecture
+usleep (usec=1000000) at /home/cjacker/yab/kendryte-standalone-sdk/lib/bsp/sleep.c:24
+24              if(read_cycle() - cycle >= nop_all)
+(gdb) load
+Loading section .text, size 0xc9030 lma 0x80000000
+....
+(gdb) b main
+Breakpoint 1 at 0x800002ca: file xxx/kendryte-standalone-sdk/src/blink/main.c, line 35.
+(gdb) c
+Continuing.
+
+Breakpoint 1, main () at .....
+35          hardware_init(); 
+(gdb)
+```
